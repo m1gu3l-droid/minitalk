@@ -1,20 +1,24 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   client.c                                           :+:      :+:    :+:   */
+/*   client_bonus.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: fnovais- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/02/11 16:50:12 by fnovais-          #+#    #+#             */
-/*   Updated: 2023/02/14 18:38:17 by fnovais-         ###   ########.fr       */
+/*   Created: 2023/02/19 15:33:00 by fnovais-          #+#    #+#             */
+/*   Updated: 2023/03/01 12:30:23 by fnovais-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "./library/minitalk.h"
-#include <signal.h>
-#include <sys/types.h>
+#include "minitalk.h"
 
-static void	send_signal(char c, int server_id)
+static void	delivery_message(int signal)
+{
+	if (signal == SIGUSR1)
+		ft_printf("message received\n");
+}
+
+static void	talk_to_server(int id, char c)
 {
 	int	i;
 
@@ -22,39 +26,56 @@ static void	send_signal(char c, int server_id)
 	while (i < 8)
 	{
 		if ((c & (1 << i)) == 0)
-			kill(server_id, SIGUSR2);
+			kill(id, SIGUSR2);
 		else
-			kill(server_id, SIGUSR1);
+			kill(id, SIGUSR1);
 		usleep(50);
 		i++;
 	}
 }
 
-int	main(int ac, char **av)
+static int	check_args(int ac, char **av)
 {
-	int	server_id;
-	int	i;
-
-	i = 0;
 	if (ac != 3)
 	{
-		ft_printf("Insert valid arguments: <server PID> and <message>\n");
+		ft_printf("error: wrong input, try <pid> and <message>.\n");
 		return (0);
 	}
-	server_id = ft_atoi(av[1]);
 	while (*av[1])
 	{
-		if (ft_isdigit(*av[1]++) == 0)
+		if (ft_isdigit(*av[1]) == 0)
 		{
-			ft_printf("ERROR: PID is not valid\n");
+			ft_printf("error: <pid> not valid.\n");
 			return (0);
 		}
+		av[1]++;
 	}
-	if (*av[2] == 0)
-		ft_printf("ERROR: empty message\n");
-	ft_printf("CLIENT PID: %d\n", getpid());
-	while (av[2][i])
-		send_signal(av[2][i++], server_id);
-	send_signal('\n', server_id);
+	if (*av[2] == '\0')
+	{
+		ft_printf("error: no message to be sent.\n");
+		return (0);
+	}
+	return (1);
+}
+
+int	main(int ac, char **av)
+{
+	struct sigaction	sa;
+	int					id;
+
+	id = ft_atoi(av[1]);
+	sa.sa_handler = &delivery_message;
+	if (check_args(ac, av))
+	{
+		ft_printf("CLIENT PID: %d\n", getpid());
+		while (*av[2])
+		{
+			sigaction(SIGUSR1, &sa, NULL);
+			sigaction(SIGUSR2, &sa, NULL);
+			talk_to_server(id, *av[2]++);
+		}
+		talk_to_server(id, *av[2]);
+		talk_to_server(id, '\n');
+	}
 	return (0);
 }
