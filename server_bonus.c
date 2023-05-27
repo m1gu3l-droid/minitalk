@@ -37,7 +37,7 @@ int	main(void)
 
 	sa.sa_sigaction = &handle_signal;
 	sa.sa_flags = SA_SIGINFO;
-	printf("SERVER PID: %d\n", getpid());
+	ft_printf("SERVER PID: %d\n", getpid());
 	sigaction(SIGUSR1, &sa, NULL);
 	sigaction(SIGUSR2, &sa, NULL);
 	while (1)
