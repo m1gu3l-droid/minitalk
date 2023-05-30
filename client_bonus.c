@@ -34,13 +34,8 @@ static void	talk_to_server(int id, char c)
 	}
 }
 
-static int	check_args(int ac, char **av)
+static int	check_args(char **av)
 {
-	if (ac != 3)
-	{
-		ft_printf("error: wrong input, try <pid> and <message>.\n");
-		return (0);
-	}
 	while (*av[1])
 	{
 		if (ft_isdigit(*av[1]) == 0)
@@ -63,11 +58,15 @@ int	main(int ac, char **av)
 	struct sigaction	sa;
 	int					id;
 
+	if (ac != 3)
+	{
+		ft_printf("error: wrong input, try <pid> and <message>.\n");
+		return (0);
+	}
 	id = ft_atoi(av[1]);
 	sa.sa_handler = &delivery_message;
-	if (check_args(ac, av))
+	if (check_args(av))
 	{
-		ft_printf("CLIENT PID: %d\n", getpid());
 		while (*av[2])
 		{
 			sigaction(SIGUSR1, &sa, NULL);

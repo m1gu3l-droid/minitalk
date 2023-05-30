@@ -30,7 +30,7 @@ SERVER_OBJ = $(SERVER_SRC:.c=.o)
 CLIENT_SRC = client.c
 CLIENT_OBJ = $(CLIENT_SRC:.c=.o)
 
-SERVER_BONUS_SRC = server_bonus.c 
+SERVER_BONUS_SRC = server_bonus.c
 SERVER_BONUS_OBJ = $(SERVER_BONUS_SRC:.c=.o)
 
 CLIENT_BONUS_SRC = client_bonus.c
@@ -52,6 +52,7 @@ clean:
 
 fclean: clean
 	$(MAKE) fclean -C ./libft
+	$(RM) $(SERVER) $(CLIENT) $(SERVER_BONUS) $(CLIENT_BONUS)
 
 re: clean fclean all
 
